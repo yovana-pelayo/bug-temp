@@ -3,8 +3,8 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsI
 
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-export async function createTodo(){
-    const response = client
+export async function createTodo(todo){
+    const response = await client
         .from('todos')
         .insert({ 
             todo: todo,
@@ -15,16 +15,21 @@ export async function createTodo(){
     return checkError(response);
 }
 
+export async function checkAuth() {
+    const user = await getUser();
+
+    if (!user) location.replace('../'); 
+}
+export async function getUser() {
+    return client.auth.session() && client.auth.session().user;
+}
+
 export async function deleteAllTodos() {
-    await client
-        .from('todos')
-        .delete()
+    await client.from('todos').delete();
 }
 
 export async function getTodos() {
-    const response = await client
-        .select()
-        .order('complete')
+    const response = await client.from('todos').select().order('complete');
 
     return checkError(response);    
 }
@@ -32,24 +37,13 @@ export async function getTodos() {
 export async function completeTodo(id) {
     const response = await client
         .from('todos')
-        .update({ complete: false })
+        .update({ complete: true })
         .match({ id: id });
 
     return checkError(response);    
 }
 
 
-
-export async function getUser() {
-    return client.auth.session();
-}
-
-
-export async function checkAuth() {
-    const user = await getUser();
-
-    if (!user) location.replace('../'); 
-}
 
 export async function redirectIfLoggedIn() {
     if (await getUser()) {
@@ -72,7 +66,7 @@ export async function signInUser(email, password){
 export async function logout() {
     await client.auth.signOut();
 
-    return window.location.href = '../';
+    return (window.location.href = '../');
 }
 
 function checkError({ data, error }) {

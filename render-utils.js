@@ -1,4 +1,4 @@
-function displayTodo() {
+export function renderTodo(todo) {
     const div = document.createElement('div');
     const p = document.createElement('p');
 
@@ -8,4 +8,5 @@ function displayTodo() {
     p.textContent = todo.todo;
 
     div.append(p);
+    return div;
 }
